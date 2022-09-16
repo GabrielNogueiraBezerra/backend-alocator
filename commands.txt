@@ -9,3 +9,10 @@ biblioteca para documentação em python
 flask_restx
 
 pip install flask_restx
+
+
+
+pyJWT
+para o token de login
+
+pip install PyJWT

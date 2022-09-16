@@ -1,4 +1,3 @@
-import fields as fields
 from flask import Blueprint, request, Response
 from flask_restx import Namespace, Resource, fields
 
@@ -13,18 +12,11 @@ api = Namespace('Professor', description="Controle de professores")
 professor_fields = api.model('professorDTO',
                              {'nome': fields.String}
                              )
-
-professor_fields_return = api.model('returnProfessor',
-                             {
-                               'id': fields.Integer,
-                              'nome': fields.String})
-
-@api.route('/professor', methods=['POST'])
+@api.route('/professor', methods =['POST'])
 class Professor(Resource):
     @api.doc(responses={200: "Professor cadastrado com sucesso."})
     @api.doc(responses={400: "Parâmetros de entrada inválidos."})
     @api.doc(responses={500: "Não foi possível cadastrar o professor, tente novamente."})
-    @api.response(200, "Sucess", professor_fields_return)
     @api.expect(professor_fields)
     def post(self):
         try:
@@ -34,6 +26,8 @@ class Professor(Resource):
                 return Response(json.dumps(ErroDTO("Parâmetros de entrada inválidos.", 400).__dict__),
                                 status=400,
                                 mimetype='application/json')
+
+
 
             return Response("Professor cadastrado com sucesso.",
                             status=200,
