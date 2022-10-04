@@ -1,12 +1,12 @@
-import json
 from functools import wraps
 
 from flask import request, Response
 
 import jwt
 
+from database.models.Usuario import Usuario
 from dtos.ErroDTO import ErroDTO
-from dtos.UsuarioDTO import UsuarioBaseDTO
+from dtos.ResponseDTO import ResponseDTO
 from services import JWTService
 
 
@@ -16,11 +16,7 @@ def token_required(f):
         headers = request.headers
 
         if not 'Authorization' in headers:
-            return Response(
-                json.dumps(ErroDTO("É necessário um token para essa requisição", 400).__dict__),
-                status=400,
-                mimetype="application/json"
-            )
+            return ResponseDTO("É necessário um token para essa requisição", 400).response()
 
         try:
             #pegando token do headers
@@ -28,26 +24,14 @@ def token_required(f):
 
             user_id = JWTService.decode(token)
 
-            current_user = UsuarioBaseDTO('teste', "login_teste")
+            current_user = Usuario.select().where(Usuario.id == user_id).get()
 
         except jwt.ExpiredSignatureError:
-            return Response(
-                json.dumps(ErroDTO("Token expirado", 401).__dict__),
-                status=401,
-                mimetype="application/json"
-            )
+            return ResponseDTO("Token expirado.", 401).response()
         except jwt.InvalidTokenError:
-            return Response(
-                json.dumps(ErroDTO("Token inválido", 401).__dict__),
-                status=401,
-                mimetype="application/json"
-            )
+            return ResponseDTO("Token inválido.", 401).response()
         except Exception:
-            raise Response(
-                json.dumps(ErroDTO("Não foi possível verificar o token", 500).__dict__),
-                status=500,
-                mimetype="application/json"
-            )
+            raise ErroDTO().response()
 
         return f(current_user, *args, **kwargs)
     return decorated

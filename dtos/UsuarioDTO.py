@@ -1,10 +1,9 @@
-class UsuarioBaseDTO:
-    def __init__(self, nome, email):
+from dtos.ResponseDTO import ResponseDTO
+
+
+class UsuarioDTO(ResponseDTO):
+    def __init__(self, nome, email, token):
         self.nome = nome
         self.email = email
-
-
-class UsuarioLoginDTO(UsuarioBaseDTO):
-    def __init__(self, nome, email, token):
-        super().__init__(nome, email)
         self.token = token
+        super().__init__("Login efetuado com sucesso.", 200)

@@ -2,7 +2,7 @@ import datetime
 
 import jwt
 
-import config
+import configs
 
 
 def encode(id_usuario):
@@ -12,13 +12,13 @@ def encode(id_usuario):
             'id_usuario': id_usuario
         }
 
-        return jwt.encode(payload, config.SECRET_KEY, algorithm="HS256")
+        return jwt.encode(payload, configs.API_SECRET_KEY, algorithm="HS256")
     except Exception:
         pass
 
 def decode(token):
     try:
-        payload = jwt.decode(token, config.SECRET_KEY, algorithm="HS256")
+        payload = jwt.decode(token, configs.API_SECRET_KEY, algorithms=["HS256"])
 
         return payload["id_usuario"]
     except jwt.ExpiredSignatureError:
