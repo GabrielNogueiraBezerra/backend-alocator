@@ -9,4 +9,4 @@ class FieldsUsuarioController(Fields):
         return self.namespace.model("input_usuario", {"nome": fields.String, "email": fields.String, "senha": fields.String})
 
     def outputs(self):
-        pass
+        return self.namespace.model("output_usuario", {"nome": fields.String, "email": fields.String})

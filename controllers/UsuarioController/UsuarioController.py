@@ -1,11 +1,13 @@
+import json
 from flask import Blueprint, request, Response
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, reqparse
 
 from controllers.UsuarioController.FieldsUsuarioController import FieldsUsuarioController
-from database.models.Usuario import Usuario
+from DB import Usuario
 
 from dtos.ErroDTO import ErroDTO
 from dtos.ResponseDTO import ResponseDTO
+from dtos.UsuarioDTO import UsuarioDTO
 
 from utils import decorations
 
@@ -15,7 +17,10 @@ namespace_usuario = Namespace('Usuario', description="Manter dados de usuários"
 
 fields_post = FieldsUsuarioController(namespace_usuario)
 
-@namespace_usuario.route('/usuario', methods=['POST'])
+parser = reqparse.RequestParser()
+parser.add_argument('id_usuario', type=int, help='Id do usuário')
+
+@namespace_usuario.route('/usuario', methods=['POST', 'GET'])
 class UsuarioController(Resource):
     @staticmethod
     @namespace_usuario.doc(responses={200: "Usuário cadastrado com sucesso."})
@@ -49,5 +54,33 @@ class UsuarioController(Resource):
             )
 
             return ResponseDTO("Usuário cadastrado com sucesso.", 400).response()
+        except Exception as e:
+            return ErroDTO(str(e)).response()
+
+    @staticmethod
+    @namespace_usuario.doc(parser=parser)
+    @namespace_usuario.doc(responses={200: "Usuário(s) resgatado(s) com sucesso."})
+    @namespace_usuario.doc(responses={400: "Parâmetros de entrada inválidos."})
+    @namespace_usuario.doc(responses={409: "Nenhum usuário com esse id encontrado."})
+    @namespace_usuario.doc(responses={500: "Falha ao executar esse procedimento, por favor tente novamente."})
+    @namespace_usuario.response(200, "Sucess", [fields_post.outputs()])
+    @decorations.token_required
+    def get(current_user):
+        try:
+            id = request.args.get('id_periodo')
+
+            if id:
+                try:
+                    usuario = Usuario.select().where(Usuario.id == id).get()
+                    return UsuarioDTO(usuario.nome, usuario.email, '').response()
+                except Usuario.DoesNotExist:
+                    return ResponseDTO("Nenhum usuário com esse id encontrado.", 409).response()
+
+            periodos = []
+            query = Usuario.select().dicts()
+            for row in query:
+                periodos.append(row)
+
+            return Response(json.dumps(periodos), 200, mimetype="application/json")
         except Exception as e:
             return ErroDTO(str(e)).response()

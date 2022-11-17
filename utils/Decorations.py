@@ -1,10 +1,10 @@
 from functools import wraps
 
-from flask import request, Response
+from flask import request
 
 import jwt
 
-from database.models.Usuario import Usuario
+from DB import Usuario
 from dtos.ErroDTO import ErroDTO
 from dtos.ResponseDTO import ResponseDTO
 from services import JWTService

@@ -1,8 +1,8 @@
-from flask import Blueprint, request, Response
-from flask_restx import Namespace, Resource, fields
+from flask import Blueprint, request
+from flask_restx import Namespace, Resource
 
 from controllers.LoginController.FieldsLoginController import FieldsLoginController
-from database.models.Usuario import Usuario
+from DB import Usuario
 
 from dtos.ErroDTO import ErroDTO
 from dtos.ResponseDTO import ResponseDTO
@@ -31,12 +31,16 @@ class LoginController(Resource):
             if (not body) or ("login" not in body) or ("senha" not in body):
                 return ResponseDTO("Parâmetros de entrada inválidos.", 400).response()
 
-            usuario = Usuario.select().where(Usuario.email == body["login"] and Usuario.senha == body["senha"]).get()
+            try:
+                usuario = Usuario.select().where(
+                    Usuario.email == body["login"] and Usuario.senha == body["senha"]).get()
+            except Usuario.DoesNotExist:
+                return ResponseDTO("Usuário ou Senha incorretos", 401).response()
 
             if usuario:
                 token = JWTService.encode(usuario.id)
                 return UsuarioDTO(usuario.nome, usuario.email, token).response()
 
-            return ResponseDTO("Usuário ou Senha incorretos, por favor tente novamente.", 401).response()
+                return ResponseDTO("Usuário ou Senha incorretos", 401).response()
         except Exception as e:
             return ErroDTO(str(e)).response()

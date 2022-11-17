@@ -1,11 +1,11 @@
 import json
 
 from flask import Blueprint, request, Response
-from flask_restx import Namespace, Resource, fields, reqparse
+from flask_restx import Namespace, Resource, reqparse
 
 from controllers.PeriodosController.FieldsPeriodosController import FieldsPeriodosController
 from controllers.PeriodosController.FieldsPutPeriodosController import FieldsPutPeriodosController
-from database.models.Periodo import Periodo
+from DB import Periodo
 
 from dtos.ErroDTO import ErroDTO
 from dtos.PeriodoDTO import PeriodoDTO
